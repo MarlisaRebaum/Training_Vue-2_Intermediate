@@ -11,7 +11,7 @@
       <div class="top-bar">
 
         <!-- Add note form -->
-        <div class="add-note-form">
+        <container class="add-note-form" :class="[activeClass, errorClass]" >
           <input 
             class="add-note-input" 
             v-model="newNote" 
@@ -20,7 +20,7 @@
             placeholder="New Note"
           />
           <button class="add-note-btn" @click="addNote">Add</button>
-        </div>
+        </container>
 
         <!-- Search form -->
         <input 
@@ -36,11 +36,13 @@
       <transition-group name="fade" mode="out-in" tag="ul" class="notes">   
           <li v-for="(note, index) of searchResults" :key="index">
             <span 
-              class="list-item" 
+              class="list-item"
+              :class="{ active: active_el==(index) }"
+              @click="activate(index)"
               v-bind="index" 
-              contenteditable="true" 
+              contenteditable="true"
               @keydown.enter="updateNote($event, note)" 
-              @:blur="updateNote($event, note)">
+              @blur="updateNote($event, note)">
               {{ note }}
             </span>
             <span class="buttons">
@@ -76,6 +78,9 @@
           newNote: '',
           notes: [],
           searchQuery: null,
+          active_el: null,
+          activeClass: 'is-active',
+          errorClass: 'text-danger',
         },
         computed: {
           totalNotes: function() {
@@ -95,7 +100,7 @@
           totalSearchResults: function() {
             const totalResults = this.searchResults.length
             return totalResults;
-          }
+          },
         },
         watch: {
           newNote(newInput) {
@@ -114,9 +119,13 @@
             if(confirm('Do you want to delete this note?'))
             this.notes.splice(index, 1);
           },
+          activate: function(index) {
+            this.active_el = index;
+          },
           updateNote: function(e, note) {
             e.preventDefault();
             note = e.target.innerText;
+            this.active_el = null;
             e.target.blur();
           },
         },
@@ -170,6 +179,10 @@
       .fade-enter, 
       .fade-leave-to {
         opacity: 0;
+      }
+
+      .is-active {
+        border: 1px solid red;
       }
 
       .add-note-form {
@@ -242,6 +255,10 @@
 
       .list-item:focus {
         outline: none;
+      }
+
+      .active {
+        color: red;
       }
 
       .buttons {
